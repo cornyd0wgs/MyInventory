@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Stock-In History — My Inventory Helper{% endblock %}
+
+{% block body %}
+    <div class="page-header d-print-none">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="page-title">Stock-In History</h1>
+                <p class="text-secondary mb-0">{{ stockIns|length }} record{{ stockIns|length == 1 ? '' : 's' }}.</p>
+            </div>
+            <div class="col-auto ms-auto">
+                <a class="btn btn-primary" href="{{ path('app_stock_in_new') }}">
+                    <i class="ti ti-plus me-1"></i>Record stock-in
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover table-vcenter card-table">
+                <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Received at</th>
+                        <th>Supplier</th>
+                        <th>Received by</th>
+                        <th class="text-end">Items</th>
+                        <th class="text-end">Total cost</th>
+                        <th class="w-1"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stockIn in stockIns %}
+                        <tr>
+                            <td><a href="{{ path('app_stock_show', { id: stockIn.id }) }}">{{ stockIn.referenceNumber }}</a></td>
+                            <td class="text-secondary">{{ stockIn.receivedAt|date('M j, Y H:i', 'Asia/Manila') }}</td>
+                            <td class="text-secondary">{{ stockIn.supplier ? stockIn.supplier.name : '—' }}</td>
+                            <td class="text-secondary">{{ stockIn.receivedBy.fullName|default(stockIn.receivedBy.userIdentifier) }}</td>
+                            <td class="text-end">{{ itemCounts[stockIn.id]|default(0) }}</td>
+                            <td class="text-end">₱{{ stockIn.totalCost }}</td>
+                            <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{{ path('app_stock_show', { id: stockIn.id }) }}">View</a></td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-secondary py-4">No stock-ins recorded yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ stockIn.referenceNumber }} — My Inventory Helper{% endblock %}
+
+{% block body %}
+    <div class="page-header d-print-none">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="page-title">{{ stockIn.referenceNumber }}</h1>
+                <p class="text-secondary mb-0">Received {{ stockIn.receivedAt|date('M j, Y H:i', 'Asia/Manila') }}.</p>
+            </div>
+            <div class="col-auto ms-auto">
+                <a class="btn btn-outline-secondary" href="{{ path('app_stock_index') }}">Back to history</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cards mb-3">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-secondary small">Supplier</div>
+                    <div class="h4 mb-0">{{ stockIn.supplier ? stockIn.supplier.name : '—' }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-secondary small">Received by</div>
+                    <div class="h4 mb-0">{{ stockIn.receivedBy.fullName|default(stockIn.receivedBy.userIdentifier) }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-secondary small">Total cost</div>
+                    <div class="h4 mb-0">₱{{ stockIn.totalCost }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title h5 mb-0">Items</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table card-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Barcode</th>
+                        <th class="text-end">Quantity</th>
+                        <th class="text-end">Unit cost</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in stockIn.items %}
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td class="text-secondary">{{ item.product.barcode|default('—') }}</td>
+                            <td class="text-end">{{ item.quantity }}</td>
+                            <td class="text-end">₱{{ item.unitCost }}</td>
+                            <td class="text-end">₱{{ item.subtotal }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if stockIn.notes %}
+            <div class="card-footer">
+                <strong class="small text-secondary">Notes</strong>
+                <p class="mb-0">{{ stockIn.notes }}</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

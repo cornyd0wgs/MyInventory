@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Products — My Inventory Helper{% endblock %}
+
+{% block body %}
+    <div class="page-header d-print-none">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="page-title">Products</h1>
+                <p class="text-secondary mb-0">{{ products|length }} active item{{ products|length == 1 ? '' : 's' }}.</p>
+            </div>
+            {% if is_granted('ROLE_OWNER') %}
+                <div class="col-auto ms-auto">
+                    <a class="btn btn-primary" href="{{ path('app_product_new') }}">
+                        <i class="ti ti-plus me-1"></i>Add product
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body border-bottom py-3">
+            <form class="row g-2 align-items-end" method="get" action="{{ path('app_product_index') }}">
+                <div class="col-md-6">
+                    <label class="form-label" for="product-search">Search name or barcode</label>
+                    <input class="form-control" id="product-search" type="search" name="q" value="{{ filter.q|default('') }}" placeholder="e.g. sardines or 4800012345006">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="product-category">Category</label>
+                    <select class="form-select" id="product-category" name="category">
+                        <option value="">All categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {{ filter.category == category.id ? 'selected' : '' }}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button class="btn btn-primary" type="submit">Filter</button>
+                    <a class="btn btn-outline-secondary" href="{{ path('app_product_index') }}">Clear</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover table-vcenter card-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Barcode</th>
+                        <th class="text-end">Cost</th>
+                        <th class="text-end">Selling</th>
+                        <th class="text-end">Qty</th>
+                        <th class="text-end">Reorder</th>
+                        <th>Status</th>
+                        {% if is_granted('ROLE_OWNER') %}<th class="w-1"></th>{% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td>{{ product.name }}</td>
+                            <td class="text-secondary">{{ product.category.name }}</td>
+                            <td class="text-secondary">{{ product.barcode|default('—') }}</td>
+                            <td class="text-end">{{ product.costPrice }}</td>
+                            <td class="text-end">{{ product.sellingPrice }}</td>
+                            <td class="text-end">{{ product.quantity }}</td>
+                            <td class="text-end">{{ product.reorderLevel }}</td>
+                            <td>
+                                {% if product.quantity <= product.reorderLevel %}
+                                    <span class="badge bg-orange-lt">Low stock</span>
+                                {% endif %}
+                                {% if product.expiringSoon %}
+                                    <span class="badge bg-yellow-lt">Expiring soon</span>
+                                {% endif %}
+                            </td>
+                            {% if is_granted('ROLE_OWNER') %}
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <a class="btn btn-outline-secondary" href="{{ path('app_product_edit', { id: product.id }) }}">Edit</a>
+                                        <form method="post" action="{{ path('app_product_archive', { id: product.id }) }}" onsubmit="return confirm('Archive {{ product.name|e('js') }}?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('archive-product' ~ product.id) }}">
+                                            <button class="btn btn-outline-danger" type="submit">Archive</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="{{ is_granted('ROLE_OWNER') ? 9 : 8 }}" class="text-center text-secondary py-4">No products found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

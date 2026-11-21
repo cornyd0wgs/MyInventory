@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Low stock — My Inventory Helper{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="page-title">Low stock</h1>
+                <p class="text-secondary mb-0">{{ products|length }} active item{{ products|length == 1 ? '' : 's' }} at or below reorder level.</p>
+            </div>
+            <div class="col-auto ms-auto">
+                <a class="btn btn-outline-secondary" href="{{ path('app_product_index') }}">All products</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover table-vcenter card-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th class="text-end">Quantity</th>
+                        <th class="text-end">Reorder level</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td>{{ product.name }}</td>
+                            <td class="text-secondary">{{ product.category.name }}</td>
+                            <td class="text-end">{{ product.quantity }}</td>
+                            <td class="text-end">{{ product.reorderLevel }}</td>
+                            <td>
+                                <span class="badge bg-orange-lt">Low stock</span>
+                                {% if product.expiringSoon %}
+                                    <span class="badge bg-yellow-lt">Expiring soon</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-secondary py-4">Nothing is low on stock.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

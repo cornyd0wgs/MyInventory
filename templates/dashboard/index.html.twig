@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard — My Inventory Helper{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="page-title">Dashboard</h1>
+                <p class="text-secondary mb-0">Welcome back, {{ username }} ({{ roles|join(', ') }}).</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row row-cards">
+        <div class="col-md-6 col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="avatar avatar-md bg-blue-lt text-blue"><i class="ti ti-packages"></i></span>
+                        <div>
+                            <div class="text-secondary small">Inventory</div>
+                            <div class="h4 mb-0">Products</div>
+                        </div>
+                    </div>
+                    <p class="text-secondary mt-3 mb-3">Browse the catalog, filter by category, and find items by barcode.</p>
+                    <a class="btn btn-primary" href="{{ path('app_product_index') }}">Open products</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="avatar avatar-md bg-orange-lt text-orange"><i class="ti ti-alert-triangle"></i></span>
+                        <div>
+                            <div class="text-secondary small">Replenishment</div>
+                            <div class="h4 mb-0">Low stock</div>
+                        </div>
+                    </div>
+                    <p class="text-secondary mt-3 mb-3">See items at or below their reorder level.</p>
+                    <a class="btn btn-outline-orange" href="{{ path('app_product_low_stock') }}">View low stock</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

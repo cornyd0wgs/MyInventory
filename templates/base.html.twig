@@ -1,24 +1,98 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
-
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
-
-        {% set frankenphp_hot_reload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
-        {% if frankenphp_hot_reload %}
-        <meta name="frankenphp-hot-reload:url" content="{{ frankenphp_hot_reload }}">
-        <script src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
-        <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
-        {% endif %}
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}My Inventory Helper{% endblock %}</title>
+        <link rel="stylesheet" href="{{ asset('vendor/tabler/tabler.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('vendor/tabler/icons/tabler-icons.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+        <script defer src="{{ asset('vendor/tabler/tabler.min.js') }}"></script>
+        {{ importmap('app') }}
     </head>
-    <body>
-        {% block body %}{% endblock %}
+    <body class="{{ app.user ? '' : 'login-page' }}">
+        <div class="page">
+            {% if app.user %}
+                {% set role_label = app.user.roles|first|default('ROLE_EMPLOYEE')|replace({'ROLE_': ''})|title %}
+                <header class="navbar navbar-expand-md navbar-light bg-white border-bottom d-print-none">
+                    <div class="container-xl">
+                        <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#app-sidebar" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <a class="navbar-brand" href="{{ path('app_dashboard') }}">
+                            <i class="ti ti-box me-2"></i>My Inventory Helper
+                        </a>
+                        <div class="ms-auto d-flex align-items-center gap-2">
+                            <span class="d-none d-sm-inline text-secondary small">{{ app.user.fullName|default(app.user.userIdentifier) }}</span>
+                            <span class="badge bg-blue-lt">{{ role_label }}</span>
+                            <a class="btn btn-sm btn-outline-secondary" href="{{ path('app_logout') }}">
+                                <i class="ti ti-logout me-1"></i>Log out
+                            </a>
+                        </div>
+                    </div>
+                </header>
+            {% endif %}
+
+            <div class="page-wrapper">
+                <div class="container-xl">
+                    <div class="row">
+                        {% if app.user %}
+                            <aside class="col-md-3 col-lg-2 d-none d-md-block border-end py-4" id="app-sidebar">
+                                <nav class="nav nav-pills flex-column" aria-label="Main navigation">
+                                    <span class="nav-section-title">Workspace</span>
+                                    <a class="nav-link {{ app.request.get('_route') == 'app_dashboard' ? 'active' : '' }}" href="{{ path('app_dashboard') }}">
+                                        <i class="ti ti-layout-dashboard me-2"></i>Dashboard
+                                    </a>
+                                    <span class="nav-link disabled" aria-disabled="true">
+                                        <i class="ti ti-scan me-2"></i>POS
+                                    </span>
+                                    <a class="nav-link {{ app.request.get('_route') starts with 'app_product' ? 'active' : '' }}" href="{{ path('app_product_index') }}">
+                                        <i class="ti ti-packages me-2"></i>Products
+                                    </a>
+                                    <a class="nav-link {{ app.request.get('_route') == 'app_product_low_stock' ? 'active' : '' }}" href="{{ path('app_product_low_stock') }}">
+                                        <i class="ti ti-alert-triangle me-2"></i>Low Stock
+                                    </a>
+                                    <a class="nav-link {{ app.request.get('_route') starts with 'app_stock' ? 'active' : '' }}" href="{{ path('app_stock_index') }}">
+                                        <i class="ti ti-truck me-2"></i>Stock-In
+                                    </a>
+                                    <a class="nav-link ms-4 small {{ app.request.get('_route') == 'app_stock_in_new' ? 'active' : '' }}" href="{{ path('app_stock_in_new') }}">
+                                        <i class="ti ti-plus me-2"></i>Record Stock-In
+                                    </a>
+                                    <span class="nav-link disabled" aria-disabled="true">
+                                        <i class="ti ti-users me-2"></i>Customers
+                                    </span>
+
+                                    {% if is_granted('ROLE_OWNER') %}
+                                        <span class="nav-section-title mt-3">Owner</span>
+                                        <a class="nav-link {{ app.request.get('_route') == 'app_product_new' ? 'active' : '' }}" href="{{ path('app_product_new') }}">
+                                            <i class="ti ti-plus me-2"></i>Add Product
+                                        </a>
+                                        <span class="nav-link disabled" aria-disabled="true">
+                                            <i class="ti ti-category me-2"></i>Categories
+                                        </span>
+                                        <span class="nav-link disabled" aria-disabled="true">
+                                            <i class="ti ti-user-cog me-2"></i>Users
+                                        </span>
+                                    {% endif %}
+                                </nav>
+                            </aside>
+                        {% endif %}
+
+                        <main class="{{ app.user ? 'col py-4' : 'col py-5' }}">
+                            {% for label, messages in app.flashes %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ label in ['success', 'danger', 'warning'] ? label : 'info' }} alert-dismissible" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+
+                            {% block body %}{% endblock %}
+                        </main>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

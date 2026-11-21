@@ -1,3 +1,54 @@
+:root {
+    --mi-accent: #316ac5;
+    --mi-surface: #f7f9fc;
+    --mi-border: #e6eaf0;
+}
+
 body {
-    background-color: skyblue;
+    background: var(--mi-surface);
+}
+
+.page-wrapper {
+    background: var(--mi-surface);
+}
+
+.navbar-brand {
+    font-weight: 600;
+    color: #22304a;
+}
+
+.nav-section-title {
+    padding: .5rem .75rem .25rem;
+    font-size: .75rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #7a8699;
+}
+
+.card {
+    border-color: var(--mi-border);
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+}
+
+.list-group-item,
+.card-header {
+    border-color: var(--mi-border);
+}
+
+.login-page .page-wrapper {
+    min-height: 100vh;
+}
+
+.login-page .card {
+    border-top: 3px solid var(--mi-accent);
+}
+
+.table td,
+.table th {
+    vertical-align: middle;
+}
+
+.btn-group form {
+    display: inline-flex;
+    margin: 0;
 }
